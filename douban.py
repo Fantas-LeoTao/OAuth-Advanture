@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-# github oauth flow
+# douban oauth flow
 
-CLIENT_ID = 'c943cb7b9b8a209bacee'
-CLIENT_SECRET = '49e239697cb6d8093576b6a104659614b12e42b1'
-AUTHORIZE_URL = 'https://github.com/login/oauth/authorize?'
-ACCESS_TOKEN_URL = 'https://github.com/login/oauth/access_token'
+CLIENT_ID = '0f0abeedbb0535112d203cc9310f9f33'
+CLIENT_SECRET = 'fccfc157bb243f61'
+AUTHORIZE_URL = 'https://www.douban.com/service/auth2/auth?'
+ACCESS_TOKEN_URL = 'https://www.douban.com/service/auth2/token'
+SOURCE_URL = ''
 REDIRECT_URI = 'http://taolei.com:5000/callback/'
 
 import urllib
@@ -18,7 +19,7 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     url = make_authorization_url()
-    return '<a href="%s">Authenticate with github</a>' % url
+    return '<a href="%s">Authenticate with douban</a>' % url
 
 
 @app.route('/callback/')
@@ -28,8 +29,9 @@ def callback():
         return error
     code = request.args.get('code')
     token = get_token(code)
-    source_url = 'https://api.github.com/user?access_token=%s' % token
-    response = requests.get(source_url)
+    source_url = 'https://api.douban.com/v2/user/~me'
+    headers = {'Authorization': 'Bearer %s' % token}
+    response = requests.get(source_url, headers=headers)
     return response.text
 
 
@@ -37,6 +39,7 @@ def make_authorization_url():
     params = {
         'client_id': CLIENT_ID,
         'redirect_uri': REDIRECT_URI,
+        'response_type': 'code'
     }
     url = AUTHORIZE_URL + urllib.urlencode(params)
     return url
@@ -46,12 +49,14 @@ def get_token(code):
     post_data = {
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_SECRET,
-        'code': code
+        'redirect_uri': REDIRECT_URI,
+        'code': code,
+        'grant_type': 'authorization_code'
     }
     response = requests.post(
-        'https://github.com/login/oauth/access_token',
-        data=post_data,
-        headers={'Accept': 'application/json'})
+        ACCESS_TOKEN_URL,
+        data=post_data)
+    print response.content
     return response.json().get('access_token')
 
 
