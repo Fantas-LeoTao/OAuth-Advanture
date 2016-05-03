@@ -27,6 +27,8 @@ def callback():
     if error:
         return error
     code = request.args.get('code')
+    if not code:
+        return
     token = get_token(code)
     source_url = 'https://api.github.com/user?access_token=%s' % token
     response = requests.get(source_url)
