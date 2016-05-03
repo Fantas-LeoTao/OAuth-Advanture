@@ -1,0 +1,14 @@
+<form class="form-signin" method="post">
+    {{ form.csrf_token }}
+    <label for="inputEmail" class="sr-only">账户</label>
+    {% if form.account.errors %}
+    <p>{{ form.account.errors[0] }}</p>
+    {% endif %}
+    {{ form.account(type="email",id="inputEmail",class="form-control",placeholder="邮箱") }}
+    <label for="inputPassword" class="sr-only">密码</label>
+    {% if form.password.errors %}
+    <p>{{ form.password.errors[0] }}</p>
+    {% endif %}
+    {{ form.password(type="password",id="inputPassword",class="form-control",placeholder="密码") }}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+</form>
